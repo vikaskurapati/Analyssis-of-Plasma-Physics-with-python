@@ -1,0 +1,188 @@
+%Assignment 2 
+%Vikas Kurapati
+%130010058
+\documentclass[11pt, a4paper]{article}
+\usepackage[affil-it]{authblk} 
+\usepackage{etoolbox}
+\usepackage{lmodern}
+\usepackage{titlesec}
+\usepackage{float}
+
+\makeatletter
+\patchcmd{\@maketitle}{\LARGE \@title}{\fontsize{20}{19.2}\selectfont\@title}{}{}
+\makeatother
+
+\renewcommand\Authfont{\fontsize{16}{14.4}\selectfont}
+\renewcommand\Affilfont{\fontsize{12}{10.8}\itshape}
+
+\title{\textbf{Assignment 3}} 
+\author{Vikas Kurapati - 130010058}
+\usepackage{graphicx}
+\begin{document}
+\maketitle
+\newpage
+\section{Question1:}
+The following plots show the results of the simulation of a charged particle motion under the influence of a constant magnetic field and no electric field.
+\subsection{Paths using Different Schemes}
+Refer code for the values used for the simulation.
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_path_boris.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_path_euler.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_path_euler2.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_path_RK2.png}
+\end{figure}
+
+\subsection{Energy Development with time using Different Schemes}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_energy_boris.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_energy_euler.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_energy_euler2.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_energy_RK2.png}
+\end{figure}
+
+\subsection{Dissipation of energy with time using Different Schemes}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_dissipation_boris.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_dissipation_euler.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_dissipation_euler2.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_dissipation_RK2.png}
+\end{figure}
+
+\subsection{Error in Particle Position with time using Different Schemes}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_error_boris.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_error_euler.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_error_euler2.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q1_error_RK2.png}
+\end{figure}
+
+\section{Question 2}
+Error in different schemes varying with time step size.
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q2_Error.png}
+\end{figure}
+
+It can be clearly seen that the slope of RK2 is greater than Euler showing the orders of the schemes to be 2 and 1 respectively as the plot is a log log plot.
+
+\section{Question 3}
+\subsection{Normalized electric Field}
+Plots comparing the RHS for normalized electric field for the three cases:
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q3Eeps1.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q3Eeps2.png}
+\end{figure}
+
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q3Eeps3.png}
+\end{figure}
+
+\subsection{Normalized Potential}
+Plots comparing the RHS for normalized Potential for the three cases:
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q3Veps1.png}
+\end{figure}
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q3Veps2.png}
+\end{figure}
+
+\begin{figure}[H]
+ \centering
+ \includegraphics[width = \textwidth]{q3Veps3.png}
+\end{figure}
+
+\section{Question 4}
+The exact solution derived for wall potential is $V_w = \frac{1}{2}ln(\frac{m_i}{2\pi m_e}) \approx 2.83$ 
+(Refer Code)
+\begin{itemize}
+ \item Sheath thickness normalized with debye length to reach wall potential for $\epsilon = 0.100000$ is 7.815631
+ \item Sheath thickness normalized with debye length to reach wall potential for $\epsilon = 0.010000$ is 16.633267
+ \item Sheath thickness normalized with debye length to reach wall potential for $\epsilon = 0.001000$ is 34.368737
+ \item Sheath thickness normalized with debye length to reach wall potential for $\epsilon = 0.000100$ is 71.671672
+  \item Sheath thickness normalized with debye length to reach wall potential for $\epsilon = 0.000010$ is 151.615162
+  \item Sheath thickness normalized with debye length to reach wall potential for $\epsilon = 0.000001$ is 323.832383
+\end{itemize}
+
+\section{Question 5}
+The normalized electric field is given for different cases of $\epsilon$ are 
+\begin{itemize}
+ \item The normalized electric field for $\epsilon = 0.100000$ is 1.140026
+  \item normalized electric field for $\epsilon = 0.010000$ is 1.135212
+  \item The normalized electric field for $\epsilon = 0.001000$ is 1.159439
+  \item The normalized electric field for $\epsilon = 0.000100$ is 1.154175
+  \item The normalized electric field for $\epsilon = 0.000010$ is 1.146671
+  \item The normalized electric field for $\epsilon = 0.000001$ is 1.159135
+\end{itemize}
+
+\section{Question 6}
+(Refer Code)
+\begin{itemize}
+ \item Child Langmuir starts at eta = 0.080000 for epsilon = 0.010000 for V = 1.000000
+  \item The thickness of sheath for a neutral wall with epsilon = 0.100000 and electrode potential = 1.000000 is 0.140000
+  \item Child Langmuir starts at eta = 0.080000 for epsilon = 0.010000 for V = 10.000000
+  \item The thickness of sheath for a neutral wall with epsilon = 0.100000 and electrode potential = 1.000000 is 0.170000
+  \item Child Langmuir starts at eta = 0.080000 for epsilon = 0.010000 for V = 100.000000
+  \item The thickness of sheath for a neutral wall with epsilon = 0.100000 and electrode potential = 1.000000 is 0.210000
+  \item Child Langmuir starts at eta = 0.080000 for epsilon = 0.010000 for V = 1.000000
+  \item The thickness of sheath for a neutral wall with epsilon = 0.010000 and electrode potential = 1.000000 is 0.140000
+  \item Child Langmuir starts at eta = 0.080000 for epsilon = 0.010000 for V = 10.000000
+  \item The thickness of sheath for a neutral wall with epsilon = 0.010000 and electrode potential = 1.000000 is 0.170000
+  \item Child Langmuir starts at eta = 0.080000 for epsilon = 0.010000 for V = 100.000000
+  \item The thickness of sheath for a neutral wall with epsilon = 0.010000 and electrode potential = 1.000000 is 0.210000
+  \item Child Langmuir starts at eta = 0.120000 for epsilon = 0.001000 for V = 1.000000
+  \item The thickness of sheath for a neutral wall with epsilon = 0.010000 and electrode potential = 1.000000 is 0.170000
+  \item Child Langmuir starts at eta = 0.120000 for epsilon = 0.001000 for V = 10.000000
+  \item The thickness of sheath for a neutral wall with epsilon = 0.010000 and electrode potential = 1.000000 is 0.210000
+  \item Child Langmuir starts at eta = 0.120000 for epsilon = 0.001000 for V = 100.000000
+  \item The thickness of sheath for a neutral wall with epsilon = 0.010000 and electrode potential = 1.000000 is 0.240000
+
+\end{itemize}
+
+\end{document}
