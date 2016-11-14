@@ -77,13 +77,13 @@ def boris(dt, tf, q=5.0, m=10.0, E=np.array([0.0, 0.0, 0.0]), Bi=np.array([0.0, 
     return x_boris, e_boris, T
 
 
-def expec(dt, tf, q=5.0, m=10.0, E=np.array([0.0, 0.0, 0.0]), B0=np.array([0.0, 0.0, 1.0]), ui=np.array([10**4, 0.0, 0.0]), x0=np.array([0.0, 0.0, 0.0])):
+def expec(dt, tf, q=5.0, m=10.0, E=np.array([0.0, 0.0, 0.0]), B0=np.array([0.0, 0.0, 1.0]), gradB=np.array([0.0,0.0,0.0]), ui=np.array([10**4, 0.0, 0.0]), x0=np.array([0.0, 0.0, 0.0])):
     ntime = int(tf/dt)
     r = m*np.sqrt(np.sum(ui*ui))/(q*B0[2])
     w = q*B0[2]/m
     x = np.zeros((ntime + 1, 3))
     x[0] = x0
-    vd = np.cross(E, B0)/(np.sum(B0*B0))
+    vd = np.cross(E, B0)/(np.sum(B0*B0)) + 0.5*m*np.sum(ui**2)/(q*np.sum(B0**2)**1.5)*np.cross(B0, gradB)
     for i in range(1, ntime + 1):
         x[i, 0] = r*np.sin(w*i*dt) + vd[0] + x[0, 0]
         x[i, 1] = r*np.cos(w*i*dt) - r + vd[1] + x[0, 1]
@@ -112,7 +112,7 @@ def q1(dt, plot=True):
         plt.title('Dissipation of particle using Euler Scheme')
         plt.savefig('q1_dissipation_euler.png')
         plt.close()
-        plt.plot(T, np.sqrt((x_euler-x_expec)[:, 0]**2+(x_euler-x_expec)[:, 1]**2))
+        plt.plot(T, np.sqrt(((x_euler-x_expec)[:, 0]**2+(x_euler-x_expec)[:, 1]**2)))
         plt.title('Error in Euler Scheme')
         plt.savefig('q1_error_euler.png')
         plt.close()
@@ -165,6 +165,113 @@ def q1(dt, plot=True):
         plt.savefig('q1_error_boris.png')
         plt.close()
         pass
+    else:
+        euler_error = np.sum((x_euler[-1] - x_expec[-1])**2)**0.5/len(x_expec)
+        euler2_error = np.sum((x_euler2[-1] - x_expec[-1])**2)**0.5/len(x_expec)
+        RK2_error = np.sum((x_RK2[-1] - x_expec[-1])**2)**0.5/len(x_expec)
+        boris_error = np.sum((x_boris[-1] - x_expec[-1])**2)**0.5/len(x_expec)
+        return euler_error, euler2_error, RK2_error, boris_error
+
+
+def q2():
+    DT = [0.1, 0.05, 0.01, 0.005, 0.001]
+    euler = np.zeros(len(DT))
+    euler2 = np.zeros(len(DT))
+    RK2 = np.zeros(len(DT))
+    boris = np.zeros(len(DT))
+    for i, dt in enumerate(DT):
+        euler[i], euler2[i], RK2[i], boris[i] = q1(dt, plot=False)
+    plt.loglog(DT, euler, label='Euler')
+    plt.loglog(DT, euler2, label="Semi-Implicit Euler")
+    plt.loglog(DT, RK2, label='RK2')
+    plt.loglog(DT, boris, label='Boris')
+    plt.legend()
+    plt.title('Error with time step')
+    plt.savefig('q2_Error.png')
+    plt.close()
+
+
+def q3(dt, plot=True):
+    x_euler, e_euler, T = euler(dt, 200, E=np.array([10**5, 0.0, 0.0]))
+    x_euler2, e_euler2, T = euler2(dt, 200, E=np.array([10**5, 0.0, 0.0]))
+    x_RK2, e_RK2, T = RK2(dt, 200, E=np.array([10**5, 0.0, 0.0]))
+    x_boris, e_boris, T = boris(dt, 200, E=np.array([10**5, 0.0, 0.0]))
+    x_expec = expec(dt, 200, E=np.array([10**5, 0.0, 0.0]))
+    plt.plot(x_euler[:, 0], x_euler[:, 1])
+    plt.title('Path of particle using Euler Scheme')
+    plt.savefig('q3_euler.png')
+    plt.close()
+    plt.plot(x_euler2[:, 0], x_euler2[:, 1])
+    plt.title('Path of particle using Semi-Implicit Euler Scheme')
+    plt.savefig('q3_euler2.png')
+    plt.close()
+    plt.plot(x_RK2[:, 0], x_RK2[:, 1])
+    plt.title('Path of particle using RK2 Scheme')
+    plt.savefig('q3_RK2.png')
+    plt.close()
+    plt.plot(x_boris[:, 0], x_boris[:, 1])
+    plt.title('Path of particle using boris Scheme')
+    plt.savefig('q3_boris.png')
+    plt.close()
+    plt.plot(T, np.sqrt((x_euler-x_expec)[:, 0]**2+(x_euler-x_expec)[:, 1]**2))
+    plt.title('Error in Euler Scheme')
+    plt.savefig('q3_error_euler.png')
+    plt.close()
+    plt.plot(T, np.sqrt((x_euler2-x_expec)[:, 0]**2+(x_euler2-x_expec)[:, 1]**2))
+    plt.title('Error in Semi-Implicit Euler Scheme')
+    plt.savefig('q3_error_euler2.png')
+    plt.close()
+    plt.plot(T, np.sqrt((x_RK2-x_expec)[:, 0]**2+(x_RK2-x_expec)[:, 1]**2))
+    plt.title('Error in RK2 Scheme')
+    plt.savefig('q3_error_RK2.png')
+    plt.close()
+    plt.plot(T, np.sqrt((x_boris-x_expec)[:, 0]**2+(x_boris-x_expec)[:, 1]**2))
+    plt.title('Error in Boris Scheme')
+    plt.savefig('q3_error_boris.png')
+    plt.close()
+
+
+def q4(dt, plot=True):
+    x_euler, e_euler, T = euler(dt, 200, gradB=0.0001)
+    x_euler2, e_euler2, T = euler2(dt, 200, gradB=0.0001)
+    x_RK2, e_RK2, T = RK2(dt, 200, gradB=0.0001)
+    x_boris, e_boris, T = boris(dt, 200, gradB=0.0001)
+    x_expec = expec(dt, 200, gradB=np.array([0.0001, 0.0, 0.0]))
+    plt.plot(x_euler[:, 0], x_euler[:, 1])
+    plt.title('Path of particle using Euler Scheme')
+    plt.savefig('q4_euler.png')
+    plt.close()
+    plt.plot(x_euler2[:, 0], x_euler2[:, 1])
+    plt.title('Path of particle using Semi-Implicit Euler Scheme')
+    plt.savefig('q4_euler2.png')
+    plt.close()
+    plt.plot(x_RK2[:, 0], x_RK2[:, 1])
+    plt.title('Path of particle using RK2 Scheme')
+    plt.savefig('q4_RK2.png')
+    plt.close()
+    plt.plot(x_boris[:, 0], x_boris[:, 1])
+    plt.title('Path of particle using boris Scheme')
+    plt.savefig('q4_boris.png')
+    plt.close()
+    plt.plot(T, np.sqrt((x_euler-x_expec)[:, 0]**2+(x_euler-x_expec)[:, 1]**2))
+    plt.title('Error in Euler Scheme')
+    plt.savefig('q4_error_Euler.png')
+    plt.close()
+    plt.plot(T, np.sqrt((x_euler2-x_expec)[:, 0]**2+(x_euler2-x_expec)[:, 1]**2))
+    plt.title('Error in Semi-Implicit Euler Scheme')
+    plt.savefig('q4_error_euler2.png')
+    plt.close()
+    plt.plot(T, np.sqrt((x_RK2-x_expec)[:, 0]**2+(x_RK2-x_expec)[:, 1]**2))
+    plt.title('Error in RK2 Scheme')
+    plt.savefig('q4_error_RK2.png')
+    plt.close()
+    plt.plot(T, np.sqrt((x_boris-x_expec)[:, 0]**2+(x_boris-x_expec)[:, 1]**2))
+    plt.title('Error in Boris Scheme')
+    plt.savefig('q4_error_boris.png')
+    plt.close()
 
 if __name__ == '__main__':
     q1(0.01)
+    # q2()
+    # q3(0.01)
+    # q4(0.01)
