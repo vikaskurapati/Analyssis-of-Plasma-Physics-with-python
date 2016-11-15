@@ -10,7 +10,7 @@ m_p = 1.67262e-27
 
 class beam:
     '''Temperature is taken in electron volts for convinience'''
-    def __init__(self, v, rho, t, mw):
+    def __init__(self, v, rho, t, mw=1.0):
         self.rho = rho
         self.v = v
         self.t = t*e/k
@@ -19,7 +19,7 @@ class beam:
     def get_beam(self):
         return self.rho, self.v, self.t, self.mw
 
-    def v_dist(self):
+    def v_dist(self, v):
         return self.rho*(self.mw/(2.0*np.pi*k*self.t))**0.5*np.exp(-self.mw*(v-self.v)**2.0/(2.0*k*self.t))
 
     def thermal_v(self):
@@ -39,12 +39,10 @@ def df(f, dx):
 
 
 def entropy(v, pdf):
-    s = 0.0
+    s = 0
     for i in range(len(v)):
-        if(pdf[i]) < 1e-12:
-            continue
-        else:
-            s = s+pdf[i]*np.log(pdf[i])*(v[i] - v[i-1])
+        if(pdf[i] != 0.0):
+            s += -1*pdf[i]*np.log(pdf[i])*(v[i] - v[i-1])
     return s
 
 
@@ -82,40 +80,53 @@ def q3(f, v_matrix, mw=1.0):
     rho = np.sum(f*v_matrix)
     v_mean = np.sum(v_matrix*f)*dv/rho
     sigma = np.sqrt(np.sum((v_matrix - v_mean)**2*f*dv)/rho)
-    t = sigma*sigma*mw*m_p/# coding=utf-8
+    t = sigma*sigma*mw*m_p/e
     return rho, v_mean, t
 
 
 def q4(beam, v):
-    plt.plot(v, beam.v_dist(vel))
+    plt.plot(v, beam.v_dist(v))
     plt.xlabel('V')
     plt.ylabel('n(V)')
-    plt.title('equilibrium distribution with respect to velocity')
+    plt.title('Equilibrium distribution with respect to velocity', y=1.05)
     plt.savefig('q4.png')
     plt.close()
+    return beam.v_dist(v)
 
 
-def q5(initial_f, mean_f, dv, freq, m, F):
+def q5(initial_f, mean_f, v_matrix, freq, m, F):
+    dv = v_matrix[1] - v_matrix[0]
     dt = 0.1/freq
     f_mid = np.zeros((1, len(initial_f)))
-    f_mid[0, :] = copy.copy(f)
-    while (np.sum((f[-1] - mean_f)**2)**0.5/np.sum(mean_f) >= 0.01):
+    f_mid[0, :] = copy.copy(initial_f)
+    while (np.sum((f_mid[-1] - mean_f)**2)**0.5/np.sum(mean_f) >= 0.01):
         f = copy.copy(f_mid[-1])
         bgk = freq*(mean_f - f)
         F_eff = F/(m*m_p)*df(mean_f, dv)
         f = f + (bgk + F)*dt
         f_mid = np.vstack([f_mid, copy.copy(f)])
-    return f_mid
+    return f_mid, f_mid.shape
 
 
-def q6(f, v):
-    s = np.zeros(lenf[0])
+def q6(f, v, den):
+    s = np.zeros(len(f[:, 0]))
+    for i in range(len(f)):
+        s[i] = entropy(v, f[i]/den)
+    plt.plot(s)
+    plt.savefig('q6.png')
 
 if __name__ == '__main__':
-    hot_beam = beam(0.0, 10**10, 1.0, 1.0)
+    hot_beam = beam(0.0, 10**10, 1.0)
     thermal_v = hot_beam.thermal_v()
-    cold_beam1 = beam(50.0*v_therm, 10**10, 0.01, 1)
-    cold_beam2 = beam(-50.0*v_therm, 10**10, 0.01, 1)
+    cold_beam1 = beam(50.0*thermal_v, 10**10, 0.01, 1)
+    cold_beam2 = beam(-50.0*thermal_v, 10**10, 0.01, 1)
     f_cold = q1([hot_beam, cold_beam1, cold_beam2])
+    print "We can consider of the order of"+str(1/f_cold)+"s"
     f, v_matrix = q2([hot_beam, cold_beam1, cold_beam2])
     rho, v_mean, t = q3(f, v_matrix)
+    print "Density = "+str(rho)+", temperature = "+str(t)
+    eq_beam = beam(v_mean, rho, t)
+    mean_f = q4(eq_beam, v_matrix)
+    evolved_f, i = q5(f, mean_f, v_matrix, f_cold, 1.0, 0.0)
+    print "It takes of the order of "+str(i[0]*0.1/f_cold)+"s to deviate from maxwell."
+    q6(evolved_f, v_matrix, rho)
