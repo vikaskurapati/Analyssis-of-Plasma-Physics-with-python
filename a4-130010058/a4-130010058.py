@@ -57,13 +57,13 @@ def q1(beam_matrix):
 
 
 def q2(beam_matrix):
-    v_min = beam_matrix[0].get_beam()[1] - 5.0*beam_matrix[0].thermal_v()
-    v_max = beam_matrix[0].get_beam()[1] + 5.0*beam_matrix[0].thermal_v()
+    v_min = beam_matrix[0].get_beam()[1] - 3.0*beam_matrix[0].thermal_v()
+    v_max = beam_matrix[0].get_beam()[1] + 3.0*beam_matrix[0].thermal_v()
     for beam in beam_matrix:
-        if v_min > beam.get_beam()[1] - 5.0*beam.thermal_v():
-            v_min = beam.get_beam()[1] - 5.0*beam.thermal_v()
-        if v_max < beam.get_beam()[1] + 5.0*beam.thermal_v():
-            v_max = beam.get_beam()[1] + 5.0*beam.thermal_v()
+        if v_min > beam.get_beam()[1] - 3.0*beam.thermal_v():
+            v_min = beam.get_beam()[1] - 3.0*beam.thermal_v()
+        if v_max < beam.get_beam()[1] + 3.0*beam.thermal_v():
+            v_max = beam.get_beam()[1] + 3.0*beam.thermal_v()
     v_matrix = np.linspace(v_min, v_max, 1000)
     f = np.zeros(len(v_matrix))
     for beam in beam_matrix:
@@ -77,7 +77,7 @@ def q2(beam_matrix):
     return f, v_matrix
 
 
-def q3(f, v_matrix, mw):
+def q3(f, v_matrix, mw=1.0):
     dv = v_matrix[1] - v_matrix[0]
     rho = np.sum(f*v_matrix)
     v_mean = np.sum(v_matrix*f)*dv/rho
@@ -101,8 +101,21 @@ def q5(initial_f, mean_f, dv, freq, m, F):
     f_mid[0, :] = copy.copy(f)
     while (np.sum((f[-1] - mean_f)**2)**0.5/np.sum(mean_f) >= 0.01):
         f = copy.copy(f_mid[-1])
-        bgk_rhs = col_freq*(fmean - f)
-        extf_term = ext_force/(mass*mp)*delf(fmean, dv)
-        f += (bgk_rhs + ext_force)*delt
-        f_evol = np.vstack([f_evol, f.copy()])
-    return f_evol
+        bgk = freq*(mean_f - f)
+        F_eff = F/(m*m_p)*df(mean_f, dv)
+        f = f + (bgk + F)*dt
+        f_mid = np.vstack([f_mid, copy.copy(f)])
+    return f_mid
+
+
+def q6(f, v):
+    s = np.zeros(lenf[0])
+
+if __name__ == '__main__':
+    hot_beam = beam(0.0, 10**10, 1.0, 1.0)
+    thermal_v = hot_beam.thermal_v()
+    cold_beam1 = beam(50.0*v_therm, 10**10, 0.01, 1)
+    cold_beam2 = beam(-50.0*v_therm, 10**10, 0.01, 1)
+    f_cold = q1([hot_beam, cold_beam1, cold_beam2])
+    f, v_matrix = q2([hot_beam, cold_beam1, cold_beam2])
+    rho, v_mean, t = q3(f, v_matrix)
